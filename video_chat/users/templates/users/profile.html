@@ -1,0 +1,58 @@
+{% extends 'video_chat/base.html' %}
+{% load static %}
+
+{% block extra_stylesheet %}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'users/css/profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="conteiner profile_style">
+  <div class="jumbotron">
+    {% if is_friend %}
+      <form method="POST" class="text-right" action="{% url 'users:delete_friend' %}">
+        {% csrf_token %}
+        <button id="button_friendship" type="submit" name="friend_pk" value="{{ userprofile.pk }}" class="btn btn-danger">
+          Eliminar amigo
+        </button>
+      </form>
+    {% else %}
+      {% if can_send %}
+        <form action="{% url 'users:send_request' %}" class="text-right" method="POST">
+          {% csrf_token %}
+          <button id="button_friendship" type="submit" name="friend_pk" value="{{ profile_pk }}" class="btn btn-primary">
+            Enviar solicitud
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
+    {% if userprofile.picture %}
+      <img class="profile-image center-block img-circle" width="250px" height="250px" src="{{ userprofile.picture.url }}" alt="profile picture"/>
+    {% else %}
+      <img class="profile-image center-block img-circle" width="250px" height="250px" src="{% static 'users/img/default-img.png' %}" alt="profile picture"/>
+    {% endif %}
+    <br>
+    <h2 class="text-center" >{{ userprofile.user.username }}</h2>
+  </div>
+  <br>
+  <p class="h3 text-center"> Videos Subidos </p>
+
+  <div class="list-group col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+    {% for video in video_list %}
+    <li class="list-group-item">
+      <a id="video_title" class="h4 text-primary" href="{% url 'videos:play' video.id %}">{{video.title}}</a>
+
+      {% ifequal user.pk profile_pk %}
+      <span class="pull-right ">
+        <a id="video_title" href="{% url 'videos:delete' video.id %}">
+          <button class="btn btn-xs btn-danger">
+            <span class="glyphicon glyphicon-trash"></span>
+          </button>
+        </a>
+      </span>
+      {% endifequal %}
+    </li>
+    {% endfor%}
+  </div>
+</div>
+{% endblock content %}

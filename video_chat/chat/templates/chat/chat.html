@@ -1,0 +1,109 @@
+<div class="row">
+  <div id="chat_window" class="divScroll col-md-12 well well-sm" >
+
+  </div>
+</div>
+<div class="row well well-sm">
+  <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
+    <form method="post" id="send-message">
+      {% csrf_token %}
+      <div class="input-group">
+        <input class="form-control" id="id_content_text"  type="input-text" placeholder="Nuevo mensaje...">
+        <span class="input-group-btn">
+          <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-send"></span></button>
+        </span>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.8/jquery.validate.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#send-message').submit(function (event) {
+            var csrftoken = getCookie('csrftoken');
+            var message = $('#id_content_text').val();
+            $('#id_content_text').val('');
+            $.ajax({
+                    type : "POST",
+                    url : "/chat/chat/",
+                    data : {
+                            csrfmiddlewaretoken : csrftoken,
+                            chat_id : {{ chatroom.id }},
+                            content_text : message,
+                        },
+
+            });
+            return false;
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(
+        function() {
+            setInterval(function() {
+                $.get( "/chat/messages/{{ chatroom.pk }}", function( data ) {
+                    $("#chat_window").html(
+                        data
+                    );
+                });
+
+            }, 500);
+        });
+
+</script>
+<script type="text/javascript">
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+</script>
+
+<script type="text/javascript">
+    $("#chat_window").scrollTop($("#chat_window")[0].scrollHeight);
+</script>
+
+<script language="javascript">
+window.onload = function() {
+  scrollDiv_init();
+};
+
+ScrollRate = 10;
+function scrollDiv_init() {
+  DivElmnt = document.getElementById("chat_window");
+  DivElmnt.onmouseover = pauseDiv;
+  DivElmnt.onmouseout = resumeDiv;
+  ReachedMaxScroll = false;
+  DivElmnt.scrollTop = 0;
+  PreviousScrollTop  = 0;
+}
+
+function pauseDiv() {
+  clearInterval(ScrollInterval);
+}
+function resumeDiv() {
+  PreviousScrollTop = DivElmnt.scrollTop;
+  ScrollInterval = setInterval('scrollDiv()', ScrollRate);
+}
+function scrollDiv() {
+    DivElmnt.scrollTop = PreviousScrollTop;
+    PreviousScrollTop++;
+    ReachedMaxScroll = DivElmnt.scrollTop >= (DivElmnt.scrollHeight - DivElmnt.offsetHeight); 
+}
+</script>
